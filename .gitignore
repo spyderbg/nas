@@ -1,2 +1,4 @@
 .env
 rustfs.env
+seaweedfs.env
+seaweedfs-s3.json
