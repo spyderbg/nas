@@ -1,0 +1,21 @@
+services:
+
+  rustfs:
+    image: rustfs/rustfs:latest
+
+    container_name: rustfs
+
+    user: "1000:1000"
+
+    restart: unless-stopped
+
+    # Host ports differ from the MinIO compose file so both can run together.
+    ports:
+      - "9002:9000"   # S3 API
+      - "9003:9001"   # Console
+
+    env_file:
+      - rustfs.env
+
+    volumes:
+      - /media/plamen/data1/nas/rustfs-data:/data

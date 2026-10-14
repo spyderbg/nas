@@ -1,0 +1,23 @@
+services:
+
+  minio:
+    image: cgr.dev/chainguard/minio:latest
+
+    container_name: minio
+
+    user: "1000:1000"
+
+    restart: unless-stopped
+
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: VeryStrongPassword
+
+    volumes:
+      - /media/plamen/data1/nas/data:/data
+
+    command: server /data --console-address ":9001"
