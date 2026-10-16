@@ -17,5 +17,12 @@ services:
     env_file:
       - rustfs.env
 
+    networks:
+      - rustfs-net
+
     volumes:
       - /media/plamen/data1/nas/rustfs-data:/data
+
+networks:
+  rustfs-net:
+    name: rustfs-net
