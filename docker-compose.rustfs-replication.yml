@@ -1,0 +1,48 @@
+# Run this file independently on each NAS. See docs/rplicate.md.
+# Replication is linked once with rustfs-site-replication.sh; it is not a
+# container startup job and requires no background client or cron task.
+name: rustfs-replication
+
+services:
+  rustfs:
+    image: ${RUSTFS_IMAGE:-rustfs/rustfs:1.0.1}
+    user: "10001:10001"
+    restart: unless-stopped
+    command: ["/data"]
+    environment:
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:?Set a unique access key in rustfs-replication.env}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:?Set a strong secret key in rustfs-replication.env}
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_CONSOLE_ADDRESS: ":9001"
+      RUSTFS_TLS_PATH: /certs
+      RUSTFS_OBS_LOG_DIRECTORY: /logs
+      RUSTFS_OBS_LOGGER_LEVEL: info
+    ports:
+      # Use the NAS VPN interface address, not 0.0.0.0 or localhost.
+      - "${RUSTFS_BIND_IP:?Set this NAS VPN IPv4 address}:${RUSTFS_S3_PORT:-9002}:9000"
+      # Console access stays local; use an SSH tunnel from your workstation.
+      - "127.0.0.1:${RUSTFS_CONSOLE_PORT:-9003}:9001"
+    volumes:
+      - type: bind
+        source: ${RUSTFS_DATA_DIR:?Set an absolute data directory}
+        target: /data
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${RUSTFS_LOG_DIR:?Set an absolute log directory}
+        target: /logs
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${RUSTFS_CERTS_DIR:?Set an absolute certificate directory}
+        target: /certs
+        read_only: true
+        bind:
+          create_host_path: false
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -2,3 +2,4 @@
 rustfs.env
 seaweedfs.env
 seaweedfs-s3.json
+rustfs-replication.env
